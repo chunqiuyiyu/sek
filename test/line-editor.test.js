@@ -18,7 +18,7 @@ import {
 test('promptLine returns only the current physical prompt line', () => {
   assert.equal(promptLine('\n> '), '> ');
   assert.equal(promptLine('\r\nask> '), 'ask> ');
-  assert.equal(promptLine('zek> '), 'zek> ');
+  assert.equal(promptLine('sek> '), 'sek> ');
 });
 
 test('cursorBackToLogicalCursor keeps cursor at end when there is no trailing text', () => {
@@ -88,7 +88,7 @@ test('findAtToken identifies active @ path token bounds', () => {
 });
 
 test('getCompletions replaces the whole @ path token when cursor is in the middle', async () => {
-  const tmpDir = mkdtempSync(path.join(os.tmpdir(), 'zek-test-'));
+  const tmpDir = mkdtempSync(path.join(os.tmpdir(), 'sek-test-'));
   try {
     mkdirSync(path.join(tmpDir, 'src'), { recursive: true });
     writeFileSync(path.join(tmpDir, 'src', 'index.js'), '// test');

@@ -1,13 +1,13 @@
 {
-  "name": "zek",
+  "name": "sek",
   "version": "0.1.0",
   "description": "A small DeepSeek-powered coding agent CLI rewritten in JavaScript.",
   "type": "module",
   "bin": {
-    "zek": "./bin/zek.js"
+    "sek": "./bin/sek.js"
   },
   "scripts": {
-    "start": "node ./bin/zek.js",
+    "start": "node ./bin/sek.js",
     "test": "node --test"
   },
   "engines": {
