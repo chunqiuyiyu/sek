@@ -5,13 +5,16 @@ import { mkdtempSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import os from 'node:os';
 import {
   completionReplacementEnd,
+  CompletionEngine,
   cursorBackToLogicalCursor,
   findAtToken,
   getCompletions,
+  highlight,
   isPrintableInput,
   normalizeInputKey,
   promptLine,
   Suggester,
+  visiblePrefix,
   visibleWidth,
 } from '../lib/line_editor.js';
 
@@ -38,6 +41,18 @@ test('visibleWidth ignores ANSI control sequences', () => {
   assert.equal(visibleWidth('\x1b[31mred\x1b[0m'), 3);
 });
 
+test('visiblePrefix clips text without exceeding display width', () => {
+  assert.equal(visiblePrefix('abcdef', 3), 'abc');
+  assert.equal(visiblePrefix('中文abc', 4), '中文');
+  assert.equal(visiblePrefix('中文abc', 5), '中文a');
+  assert.equal(visiblePrefix('abc', 0), '');
+});
+
+test('highlight keeps unknown plain text visible', () => {
+  assert.equal(highlight('hello'), 'hello');
+  assert.equal(highlight('hello world'), 'hello world');
+});
+
 test('normalizeInputKey converts data chunks to strings', () => {
   assert.equal(normalizeInputKey('a'), 'a');
   assert.equal(normalizeInputKey(Buffer.from('a')), 'a');
@@ -58,6 +73,18 @@ test('isPrintableInput accepts Unicode IME chunks and rejects controls', () => {
 test('completionReplacementEnd consumes an existing separator space', () => {
   assert.equal(completionReplacementEnd('read @src/file next', 'read @src/file'.length, ['src/file ']), 'read @src/file '.length);
   assert.equal(completionReplacementEnd('read @src/file,next', 'read @src/file'.length, ['src/file ']), 'read @src/file'.length);
+});
+
+test('CompletionEngine completes command objects without requiring full path field', async () => {
+  const engine = new CompletionEngine(process.cwd());
+
+  await engine.compute('/he', '/he'.length);
+  const result = engine.next();
+
+  assert.deepEqual(result, {
+    input: '/help ',
+    cursor: '/help '.length,
+  });
 });
 
 test('Suggester does not extend exact built-in commands', () => {
