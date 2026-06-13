@@ -1,6 +1,6 @@
-# sek
+# Sek CLI
 
-**sek** is a coding agent CLI powered by **DeepSeek V4 Flash**. It runs entirely on Node.js with **zero npm dependencies** — just the standard library.
+**sek-cli** is a coding agent CLI powered by **DeepSeek V4 Flash**. It runs entirely on Node.js with **zero npm dependencies** — just the standard library.
 
 It can read, write, search, and edit files, execute shell commands, and interact with the user across multiple turns, all driven by the DeepSeek function-calling API.
 
@@ -9,6 +9,8 @@ It can read, write, search, and edit files, execute shell commands, and interact
 ```bash
 npm install -g sek-cli
 ```
+
+After installation, the command `sek` is available globally.
 
 ## Requirements
 
@@ -25,7 +27,7 @@ export DEEPSEEK_API_KEY=sk-your-key-here
 sek-cli "implement a fizzbuzz function in Python"
 
 # Or start an interactive REPL session
-sek
+sek-cli
 ```
 
 ### Options
@@ -40,20 +42,12 @@ sek
 | `--verbose` | false | Print token/cache usage after each step |
 | `--help` | — | Show help |
 
-### Environment variables
-
-| Variable | Required | Description |
-|---|---|---|
-| `DEEPSEEK_API_KEY` | Yes | Your DeepSeek API key |
-
 ## How it works
 
 1. The CLI sends your request to the DeepSeek API with a set of available tools.
 2. The model responds with tool calls (read file, write file, search, shell, etc.).
 3. Each tool call is executed locally and the result is fed back to the model.
 4. The loop continues until the model produces a final answer or the step limit is reached.
-
-sek has no external runtime dependencies — only what ships with Node.js.
 
 ## License
 
