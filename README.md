@@ -1,16 +1,16 @@
-# Sek CLI
+# Sekrun CLI
 
-**sek-cli** is a coding agent CLI powered by **DeepSeek V4 Flash**. It runs entirely on Node.js with **zero npm dependencies** — just the standard library.
+**sekrun** is a coding agent CLI powered by **DeepSeek V4 Flash**. It runs entirely on Node.js with **zero npm dependencies** — just the standard library.
 
 It can read, write, search, and edit files, execute shell commands, and interact with the user across multiple turns, all driven by the DeepSeek function-calling API.
 
 ## Install
 
 ```bash
-npm install -g sek-cli
+npm install -g sekrun
 ```
 
-After installation, the command `sek` is available globally.
+After installation, the command `sekrun` is available globally.
 
 ## Requirements
 
@@ -24,10 +24,10 @@ After installation, the command `sek` is available globally.
 export DEEPSEEK_API_KEY=sk-your-key-here
 
 # Run a one-shot task
-sek-cli "implement a fizzbuzz function in Python"
+sekrun "implement a fizzbuzz function in Python"
 
 # Or start an interactive REPL session
-sek-cli
+sekrun
 ```
 
 ### Options

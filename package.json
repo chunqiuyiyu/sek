@@ -1,17 +1,17 @@
 {
-  "name": "sek-cli",
+  "name": "sekrun",
   "version": "0.1.0",
   "description": "A DeepSeek-powered coding agent CLI.",
   "type": "module",
   "bin": {
-    "sek": "./bin/sek.js"
+    "sekrun": "./bin/sekrun.js"
   },
   "files": [
     "bin/",
     "lib/"
   ],
   "scripts": {
-    "start": "node ./bin/sek.js",
+    "start": "node ./bin/sekrun.js",
     "test": "node --test"
   },
   "engines": {
