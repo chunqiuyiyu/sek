@@ -25,6 +25,11 @@ test('Agent starts conversations with sek system prompt', () => {
   assert.match(SYSTEM_PROMPT, /Do not claim to be Claude/);
   assert.doesNotMatch(SYSTEM_PROMPT, /can do anything/);
   assert.match(SYSTEM_PROMPT, /use the available tools/);
+  assert.match(SYSTEM_PROMPT, /Root cause:/);
+  assert.match(SYSTEM_PROMPT, /Files:/);
+  assert.match(SYSTEM_PROMPT, /Plan:/);
+  assert.match(SYSTEM_PROMPT, /Verification:/);
+  assert.match(SYSTEM_PROMPT, /If the root cause is not established, do not edit files/);
 });
 
 test('shouldContinueForPromisedToolUse detects scan promises without tools', () => {
@@ -118,6 +123,52 @@ test('Agent returns malformed tool arguments as tool result instead of throwing'
   assert.equal(calls.length, 2);
   assert.equal(toolMessage.tool_call_id, 'call_bad_json');
   assert.match(toolMessage.content, /Invalid tool arguments JSON/);
+});
+
+test('Agent reports max step limit and can continue the same turn', async () => {
+  const calls = [];
+  const client = {
+    async query(messages) {
+      calls.push(messages.map((message) => ({ role: message.role, content: message.content })));
+      if (calls.length <= 2) {
+        return {
+          content: 'phase 1: I will continue.',
+          tool_calls: [],
+          usage: emptyUsage(),
+        };
+      }
+      return {
+        content: 'finished',
+        tool_calls: [],
+        usage: emptyUsage(),
+      };
+    },
+  };
+  const agent = new Agent(client, { root: 'C:\\repo' }, {
+    maxOutput: 8192,
+    maxStepsPerTurn: 2,
+    verbose: false,
+  });
+
+  const originalError = console.error;
+  const originalLog = console.log;
+  console.error = () => {};
+  console.log = () => {};
+  let first;
+  let second;
+  try {
+    first = await agent.handleUserMessage('large task', false);
+    second = await agent.continueTurn(false);
+  } finally {
+    console.error = originalError;
+    console.log = originalLog;
+  }
+
+  assert.equal(first.reachedMaxSteps, true);
+  assert.equal(first.steps, 2);
+  assert.equal(second.reachedMaxSteps, false);
+  assert.equal(agent.messages.filter((message) => message.role === 'user' && message.content === 'large task').length, 1);
+  assert.equal(calls.length, 3);
 });
 
 test('Agent compacts large tool output before storing it in history', () => {

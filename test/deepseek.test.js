@@ -5,7 +5,8 @@ import { buildRequestBody, parseResponse } from '../lib/deepseek.js';
 test('buildRequestBody includes tools when needsTools is true', () => {
   const body = buildRequestBody([{ role: 'system', content: 'test' }], true);
   assert.match(body, /"read_file"/);
-  assert.match(body, /"enabled"/);
+  assert.match(body, /"tool_choice":"auto"/);
+  assert.match(body, /"thinking":\{"type":"disabled"\}/);
 });
 
 test('buildRequestBody always includes tools (needsTools is a no-op)', () => {
