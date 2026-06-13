@@ -155,7 +155,45 @@ test('Agent compacts old messages into a session summary', () => {
   assert.equal(agent.messages[0].role, 'system');
   assert.equal(agent.messages[1].role, 'system');
   assert.match(agent.messages[1].content, /\[sek session summary\]/);
-  assert.match(agent.messages[1].content, /Compacted/);
+  assert.match(agent.messages[1].content, /earlier message/);
+  assert.equal(agent.messages.at(-1).content, 'current request');
+});
+
+test('Agent compactHistory does not leave orphan tool messages', () => {
+  const agent = new Agent({}, { root: 'C:\\repo' }, {
+    maxOutput: 8192,
+    maxToolHistoryBytes: 4096,
+    maxHistoryMessages: 5,
+    maxStepsPerTurn: 40,
+    verbose: false,
+  });
+
+  agent.messages.push({ role: 'user', content: 'old request' });
+  agent.messages.push({
+    role: 'assistant',
+    content: null,
+    tool_calls: [
+      { id: 'call_1', name: 'read_file', arguments: '{"path":"a"}' },
+      { id: 'call_2', name: 'read_file', arguments: '{"path":"b"}' },
+      { id: 'call_3', name: 'read_file', arguments: '{"path":"c"}' },
+    ],
+  });
+  agent.messages.push({ role: 'tool', tool_call_id: 'call_1', name: 'read_file', content: 'a' });
+  agent.messages.push({ role: 'tool', tool_call_id: 'call_2', name: 'read_file', content: 'b' });
+  agent.messages.push({ role: 'tool', tool_call_id: 'call_3', name: 'read_file', content: 'c' });
+  agent.messages.push({ role: 'assistant', content: 'done' });
+  agent.messages.push({ role: 'user', content: 'current request' });
+
+  agent.compactHistory();
+
+  for (let i = 0; i < agent.messages.length; i += 1) {
+    const message = agent.messages[i];
+    if (message.role !== 'tool') continue;
+
+    const previous = agent.messages[i - 1];
+    assert.equal(previous?.role, 'assistant');
+    assert.ok(previous.tool_calls?.some((call) => call.id === message.tool_call_id));
+  }
   assert.equal(agent.messages.at(-1).content, 'current request');
 });
 
